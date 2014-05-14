@@ -276,6 +276,11 @@ You may want to customise your invenio-local.conf configuration accordingly."""
     if option_name in ['CFG_BIBMATCH_MATCH_VALIDATION_RULESETS']:
         option_value = option_value[1:-1]
 
+    ## 3i) special cases: transform dictionary in list of values (integers)
+    if option_name in ['CFG_WEBSEARCH_ENABLED_SEARCH_INTERFACES']:
+        option_values = option_value[2:-2].split(',')
+        option_value = [int(value[value.index(':')+1:].strip()) for value in option_values]
+
     ## 4a) dropped variables
     if option_name in ['CFG_BATCHUPLOADER_WEB_ROBOT_AGENT']:
         print >> sys.stderr, ("""ERROR: CFG_BATCHUPLOADER_WEB_ROBOT_AGENT has been dropped in favour of

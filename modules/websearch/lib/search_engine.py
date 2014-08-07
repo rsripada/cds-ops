@@ -4438,7 +4438,7 @@ def get_interval_for_records_to_sort(nb_found, jrec=None, rg=None):
 
     return irec_min, irec_max
 
-def print_records(req, recIDs, jrec=1, rg=CFG_WEBSEARCH_DEF_RECORDS_IN_GROUPS, format='hb', ot='', ln=CFG_SITE_LANG,
+def print_records(req, recIDs, nb_found, jrec=1, rg=CFG_WEBSEARCH_DEF_RECORDS_IN_GROUPS, format='hb', ot='', ln=CFG_SITE_LANG,
                   relevances=[], relevances_prologue="(", relevances_epilogue="%%)",
                   decompress=zlib.decompress, search_pattern='', print_records_prologue_p=True,
                   print_records_epilogue_p=True, verbose=0, tab='', sf='', so='d', sp='',
@@ -4481,8 +4481,7 @@ def print_records(req, recIDs, jrec=1, rg=CFG_WEBSEARCH_DEF_RECORDS_IN_GROUPS, f
     else:
         user_info = collect_user_info(req)
 
-    if len(recIDs):
-        nb_found = len(recIDs)
+    if nb_found:
 
         if not rg or rg == -9999: # print all records
             rg = nb_found
@@ -5826,8 +5825,10 @@ def prs_detailed_record(kwargs=None, req=None, of=None, cc=None, aas=None, ln=No
             else:
                 return result
         else:
-            print_records(req, range(recid, recidb), -1, -9999, of, ot, ln, search_pattern=p, verbose=verbose,
-                          tab=tab, sf=sf, so=so, sp=sp, rm=rm, em=em)
+            print_records(req, range(recid, recidb), len(range(recid, recidb)),
+                          -1, -9999, of, ot, ln, search_pattern=p,
+                          verbose=verbose, tab=tab, sf=sf, so=so, sp=sp, rm=rm,
+                          em=em)
         if req and of.startswith("h"): # register detailed record page view event
             client_ip_address = str(req.remote_ip)
             register_page_view_event(recid, uid, client_ip_address)
@@ -5944,7 +5945,7 @@ def prs_search_similar_records(kwargs=None, req=None, of=None, cc=None, pl_in_ur
                                             sc, pl_in_url,
                                             d1y, d1m, d1d, d2y, d2m, d2d, dt, cpu_time, em=em))
                 write_warning(results_similar_comments, req=req)
-                print_records(req, results_similar_recIDs, jrec, rg, of, ot, ln,
+                print_records(req, results_similar_recIDs, len(results_similar_recIDs), jrec, rg, of, ot, ln,
                               results_similar_relevances, results_similar_relevances_prologue,
                               results_similar_relevances_epilogue,
                               search_pattern=p, verbose=verbose, sf=sf, so=so, sp=sp, rm=rm, em=em)
@@ -5953,7 +5954,7 @@ def prs_search_similar_records(kwargs=None, req=None, of=None, cc=None, pl_in_ur
             elif of == "intbitset":
                 return intbitset(results_similar_recIDs)
             elif of.startswith("x"):
-                print_records(req, results_similar_recIDs, jrec, rg, of, ot, ln,
+                print_records(req, results_similar_recIDs, len(results_similar_recIDs), jrec, rg, of, ot, ln,
                               results_similar_relevances, results_similar_relevances_prologue,
                               results_similar_relevances_epilogue, search_pattern=p, verbose=verbose,
                               sf=sf, so=so, sp=sp, rm=rm, em=em)
@@ -6016,14 +6017,14 @@ def prs_search_cocitedwith(kwargs=None, req=None, of=None, cc=None, pl_in_url=No
                                             jrec, rg, aas, ln, p1, p2, p3, f1, f2, f3, m1, m2, m3, op1, op2,
                                             sc, pl_in_url,
                                             d1y, d1m, d1d, d2y, d2m, d2d, dt, cpu_time, em=em))
-                print_records(req, results_cocited_recIDs, jrec, rg, of, ot, ln, search_pattern=p, verbose=verbose,
+                print_records(req, results_cocited_recIDs, len(results_cocited_recIDs), jrec, rg, of, ot, ln, search_pattern=p, verbose=verbose,
                               sf=sf, so=so, sp=sp, rm=rm, em=em)
             elif of == "id":
                 return results_cocited_recIDs
             elif of == "intbitset":
                 return intbitset(results_cocited_recIDs)
             elif of.startswith("x"):
-                print_records(req, results_cocited_recIDs, jrec, rg, of, ot, ln, search_pattern=p, verbose=verbose,
+                print_records(req, results_cocited_recIDs, len(results_cocited_recIDs), jrec, rg, of, ot, ln, search_pattern=p, verbose=verbose,
                               sf=sf, so=so, sp=sp, rm=rm, em=em)
             else:
                 # cited rank_records failed and returned some error message to display:
@@ -6428,6 +6429,7 @@ def prs_print_records(kwargs=None, results_final=None, req=None, of=None, cc=Non
                                             sc, pl_in_url,
                                             d1y, d1m, d1d, d2y, d2m, d2d, dt, cpu_time, em=em))
             results_final_recIDs = list(results_final[coll])
+            results_final_nb_found = len(results_final_recIDs)
             results_final_relevances = []
             results_final_relevances_prologue = ""
             results_final_relevances_epilogue = ""
@@ -6453,7 +6455,8 @@ def prs_print_records(kwargs=None, results_final=None, req=None, of=None, cc=Non
             else:
                 wlqh_results_overlimit = 1
 
-            print_records(req, results_final_recIDs, jrec, rg, of, ot, ln,
+            print_records(req, results_final_recIDs, results_final_nb_found,
+                          jrec, rg, of, ot, ln,
                           results_final_relevances,
                           results_final_relevances_prologue,
                           results_final_relevances_epilogue,

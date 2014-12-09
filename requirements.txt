@@ -31,3 +31,4 @@ Cerberus==0.5
 html2text==2014.7.3
 markdown2==2.2.1
 bleach==1.4
+lumberjack==git+https://github.com/CERNDocumentServer/lumberjack.git

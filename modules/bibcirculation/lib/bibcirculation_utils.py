@@ -26,9 +26,14 @@ import random
 import re
 import time
 
-from invenio.search_engine_utils import get_fieldvalues
+from invenio.search_engine_utils import get_fieldvalues, \
+                                        get_fieldvalues_alephseq_like
 from invenio.urlutils import make_invenio_opener
-from invenio.search_engine import get_field_tags
+from invenio.search_engine import get_field_tags, \
+                                  get_record
+from invenio.bibrecord import record_get_field_instances, \
+                              field_get_subfield_codes, \
+                              field_get_subfield_values
 from invenio.bibtask import task_low_level_submission
 from invenio.textutils import encode_for_xml
 from invenio.messages import gettext_set_language
@@ -39,6 +44,8 @@ from invenio.bibcirculation_config import \
                                 CFG_BIBCIRCULATION_WORKING_DAYS, \
                                 CFG_BIBCIRCULATION_HOLIDAYS, \
                                 CFG_CERN_SITE, \
+                                CFG_EBOOK_LINK_TAG, \
+                                CFG_DOI_TAG, \
                                 CFG_BIBCIRCULATION_ITEM_STATUS_ON_LOAN, \
                                 CFG_BIBCIRCULATION_ITEM_STATUS_ON_SHELF, \
                                 CFG_BIBCIRCULATION_ITEM_STATUS_IN_PROCESS, \
@@ -805,6 +812,11 @@ def generate_email_body(template, loan_id, ill=0):
         out = template % (book_title, book_year, book_author,
                       book_isbn, book_editor)
 
+        ebook_link = record_edoc_link(recid)
+        if ebook_link:
+            out += '\n\n' + 'P.S. Please note that this document is available electronically: '\
+                   + ebook_link
+
     return out
 
 def create_item_details_url(recid, ln):
@@ -951,3 +963,49 @@ def looks_like_dictionary(candidate_string):
         return True
     else:
         return False
+
+def record_edoc_link(recid):
+    """
+    If a link to the e-document exists in the record's metadata, return it.
+    Else, return ''
+    """
+
+    eb = get_fieldvalues_alephseq_like(recid, '340').lower()
+    if not 'ebook' in eb and not 'e-book' in eb:
+        return ''
+
+    rec = get_record(recid)
+    fields = record_get_field_instances(rec, CFG_EBOOK_LINK_TAG[:3],
+                                        CFG_EBOOK_LINK_TAG[3], CFG_EBOOK_LINK_TAG[4])
+    for field in fields:
+        subfields = field_get_subfield_codes(field)
+        if CFG_EBOOK_LINK_TAG[5] in subfields and 'y' in subfields:
+            eb = ''.join(field_get_subfield_values(field, 'y')).lower()
+            if 'ebook' in eb or 'e-book' in eb or \
+               'eproceedings' in eb or 'e-proceedings' in eb:
+                eb = field_get_subfield_values(field, CFG_EBOOK_LINK_TAG[5])
+                if eb[0].startswith('http'): return eb[0]
+
+    #Look for the DOI.
+    fields = record_get_field_instances(rec, CFG_DOI_TAG[:3],
+                                        CFG_DOI_TAG[3], CFG_DOI_TAG[4])
+    for field in fields:
+        subfields = field_get_subfield_codes(field)
+        if CFG_DOI_TAG[5] in subfields and 'y' in subfields and '2' in subfields:
+            eb = ''.join(field_get_subfield_values(field, 'y')).lower()
+            fl = ''.join(field_get_subfield_values(field, '2')).lower()
+            if 'doi' in fl and \
+               ('ebook' in eb or 'e-book' in eb or \
+                'eproceedings' in eb or 'e-proceedings' in eb):
+                eb = field_get_subfield_values(field, CFG_DOI_TAG[5])
+                return 'http://dx.doi.org/' + eb[0]
+
+    return ''
+
+def message_edoc_available(recid, ln=CFG_SITE_LANG):
+    _ = gettext_set_language(ln)
+    ebook_link = record_edoc_link(recid)
+    if ebook_link:
+        return _(' Please note that the document you have requested is also available electronically')\
+               + ': <a href="' + ebook_link + '"> Access ECopy </a><br>'
+    return ''

@@ -48,10 +48,12 @@ from invenio.bibcirculation_utils import book_title_from_MARC, \
      generate_tmp_barcode, \
      generate_new_due_date, \
      update_requests_statuses, \
-     search_user
+     search_user, \
+     record_edoc_link
 from invenio.bibcirculation_cern_ldap import get_user_info_from_ldap
 from invenio.bibcirculation_config import CFG_BIBCIRCULATION_LIBRARIAN_EMAIL, \
                                     CFG_BIBCIRCULATION_LOANS_EMAIL, \
+                                    CFG_BIBCIRCULATION_ITEM_STATUS_ON_SHELF, \
                                     CFG_BIBCIRCULATION_ITEM_STATUS_UNDER_REVIEW, \
                                     CFG_BIBCIRCULATION_REQUEST_STATUS_PENDING, \
                                     CFG_BIBCIRCULATION_REQUEST_STATUS_WAITING, \
@@ -138,9 +140,10 @@ def perform_borrower_loans(uid, barcode, borrower_id,
     loans = db.get_borrower_loans(borrower_id)
     requests = db.get_borrower_requests(borrower_id)
     proposals = db.get_borrower_proposals(borrower_id)
+    ills = db.get_borrower_ills(borrower_id)
 
     body = bc_templates.tmpl_yourloans(loans=loans, requests=requests, proposals=proposals,
-                                       borrower_id=borrower_id, infos=infos, ln=ln)
+                                       ills=ills, borrower_id=borrower_id, infos=infos, ln=ln)
     return body
 
 def perform_loanshistoricaloverview(uid, ln=CFG_SITE_LANG):
@@ -211,7 +214,7 @@ def perform_get_holdings_information(recid, req, action="borrowal", ln=CFG_SITE_
 
     return body
 
-def perform_new_request(recid, barcode, action="borrowal", ln=CFG_SITE_LANG):
+def perform_new_request(infos, recid, barcode, action="borrowal", ln=CFG_SITE_LANG):
     """
     Display form to be filled by the user.
 
@@ -227,7 +230,7 @@ def perform_new_request(recid, barcode, action="borrowal", ln=CFG_SITE_LANG):
     @return request form
     """
 
-    body = bc_templates.tmpl_new_request(recid=recid, barcode=barcode, action=action, ln=ln)
+    body = bc_templates.tmpl_new_request(infos=infos, recid=recid, barcode=barcode, action=action, ln=ln)
 
     return body
 
@@ -294,6 +297,12 @@ def perform_new_request_send(uid, recid, period_from, period_to,
     @param ln: language of the page
     """
 
+    _ = gettext_set_language(ln)
+    if not period_from or not period_to or period_from > period_to:
+        return perform_new_request(_('Please select the FROM and TO dates correctly'),
+                                   recid, barcode, action="borrowal", ln=ln)
+  
+            
     nb_requests = 0
     all_copies_on_loan = True
     description = db.get_item_description(barcode)
@@ -320,7 +329,10 @@ def perform_new_request_send_message(uid, recid, period_from, period_to, barcode
                                      status, mail_subject, mail_template,
                                      mail_remarks='', ln=CFG_SITE_LANG):
 
+
     user = collect_user_info(uid)
+
+    _ = gettext_set_language(ln)
 
     if CFG_CERN_SITE:
         try:
@@ -370,6 +382,22 @@ def perform_new_request_send_message(uid, recid, period_from, period_to, barcode
                                             year, isbn, location, library,
                                             link_to_holdings_details, request_date)
 
+            description = db.get_item_description(barcode)
+            copies_status = db.get_copies_status(recid, description)
+
+            ps_message = 'P.S. '
+            if CFG_BIBCIRCULATION_ITEM_STATUS_ON_SHELF not in copies_status:
+                ps_message += _('We will send you the physical copy as soon as it becomes available. ')
+
+            ebook_link = record_edoc_link(recid)
+            if ebook_link:
+                ps_message += _('Please note that the document you have requested is also available electronically: ')\
+                              + ebook_link + '\n\n' +\
+                              _('If the digital edition meets your requirement, please delete your hold request: ')\
+                              + CFG_SITE_URL + '/yourloans/display'
+
+            if ps_message != 'P.S ': message_for_user += ps_message
+
         send_email(fromaddr = CFG_BIBCIRCULATION_LOANS_EMAIL,
                    toaddr   = email,
                    subject  = mail_subject,
@@ -404,12 +432,12 @@ def perform_new_request_send_message(uid, recid, period_from, period_to, barcode
             if status == CFG_BIBCIRCULATION_REQUEST_STATUS_PROPOSED:
                 message = bc_templates.tmpl_message_proposal_send_ok_cern()
             else:
-                message = bc_templates.tmpl_message_request_send_ok_cern()
+                message = bc_templates.tmpl_message_request_send_ok_cern(recid)
         else:
             if status == CFG_BIBCIRCULATION_REQUEST_STATUS_PROPOSED:
                 message = bc_templates.tmpl_message_proposal_send_ok_other()
             else:
-                message = bc_templates.tmpl_message_request_send_ok_other()
+                message = bc_templates.tmpl_message_request_send_ok_other(recid)
 
     else:
         if CFG_CERN_SITE:
@@ -570,7 +598,7 @@ def ill_register_request_with_recid(recid, uid, period_of_interest_from,
                                 only_edition or 'False','book', barcode=barcode)
 
         if CFG_CERN_SITE == 1:
-            message = bc_templates.tmpl_message_request_send_ok_cern()
+            message = bc_templates.tmpl_message_request_send_ok_cern(recid)
         else:
             message = bc_templates.tmpl_message_request_send_ok_other()
 

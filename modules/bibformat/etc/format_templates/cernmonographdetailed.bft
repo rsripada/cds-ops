@@ -1,0 +1,216 @@
+<name>cern monograph detailed</name>
+<description>Book, Report, Standard, Thesis detailed format ($Revision$)</description>
+<style type="text/css">
+    <!--
+        ul.detailedrecordtabs li.on a{background-color:#4D94CC;color:#fff !important;border-bottom:1px solid #4D94CC!important;}
+        div.detailedrecordboxcontent {padding-top:0px !important;}
+    -->
+</style>
+
+<table class="formatRecordTableFullWidth" >
+   <tr>
+      <td class="formatRecordHeader" style="background-image: url('https://cds.cern.ch/img/journals.jpg');" colspan="2">
+      <BFE_CERN_690C_MAPPING kb="cern_690C_indicator" link_style="color:#fff;text-decoration:none;"/>
+
+</td>
+</tr>
+
+<BFE_CERN_STANDARD_LINK print_standard_number="yes" separator=" ; " prefix='<tr><td class="formatRecordLabel">
+Standard number
+</td><td style="padding-left:5px;">' suffix='</td></tr>' default="" separator=" ; "/>
+
+<BFE_REPORT_NUMBERS prefix='<tr><td class="formatRecordLabel">
+Report number
+</td><td style="padding-left:5px;">' separator=' ; ' suffix='</td></tr>' default="" escape=""/>
+
+<BFE_CERN_TITLE_SUBTITLE prefix='<tr><td class="formatRecordLabel">
+Title
+</td><td style="padding-left:5px;"><b>' suffix='</b></td></tr>' separator=" : "/>
+
+<BFE_CERN_BOOK_COVER prefix='<tr><td class="formatRecordLabel"> </td><td style="padding-left:5px;">'
+                     suffix='</td></tr>' refresh_cover="ifnecessary"/>
+
+<BFE_CERN_YELLOW_REPORT_COVER prefix='<tr><td class="formatRecordLabel"></td><td style="padding-left:5px;">'
+                   suffix="</td></tr>" max_width="200px"/>
+
+<BFE_CERN_PRECISION_RELATED_TITLE
+label_prefix='<tr><td class="formatRecordLabel" style="vertical-align:top;">'
+label_suffix='</td>'
+value_prefix='<td style="padding-left:5px; ">'
+value_suffix='</td></tr>'
+default=""
+alternative_label="Related title"
+separator= " : "
+/>
+
+<BFE_CERN_VOLUME
+prefix='<tr><td class="formatRecordLabel">
+Volume
+</td>
+<td style="padding-left:5px;">'
+suffix='</td></tr>'
+default=""
+separator=" : "
+/>
+
+<BFE_CERN_TITLE_SUBTITLE 
+prefix='<tr><td class="formatRecordLabel">
+Translation of title
+</td><td style="padding-left:5px;">' 
+suffix="</td></tr>" title_in="242__a" subtitle_in="242__b" separator=" : " />
+
+<BFE_FIELD prefix='<tr><td
+class="formatRecordLabel">
+Edition
+</td><td style="padding-left:5px;">' suffix="</td></tr>" default="" escape="" tag="250__a" limit="" subfields_separator=" : " instances_separator=" ; "/>
+
+
+
+<BFE_CERN_authors prefix='<tr><td class="formatRecordLabel" span style="white-space:nowrap;">Author(s)</span>
+</td><td style="padding-left:5px;">'
+suffix="</td></tr>" limit='50' interactive='yes' print_affiliations='yes' separator=' ; ' />
+
+<BFE_CERN_AFFILIATION prefix='<tr><td
+class="formatRecordLabel">
+Affiliation
+</td><td style="padding-left:5px;">' suffix="</td></tr>" separator=" ; "/>
+
+<BFE_CERN_CORPORATE_AUTHOR prefix='<tr><td
+class="formatRecordLabel">Corporate <span style="white-space:nowrap;">author(s)</span>
+</td><td style="padding-left:5px;">' suffix="</td></tr>" separator=" ; "/>
+
+<BFE_FIELD prefix='<tr><td
+class="formatRecordLabel">
+Collaboration
+</td><td style="padding-left:5px;">' suffix="</td></tr>" default="" escape="" tag="710__g" limit="" subfields_separator=" : " instances_separator=" ; "/>
+
+<BFE_CERN_IMPRINT_DETAILED prefix='<tr><td
+class="formatRecordLabel">
+Publication
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_SERIES_DETAILED prefix='<tr><td
+class="formatRecordLabel">
+Series
+</td><td style="padding-left:5px;">' suffix="</td></tr>" print_links='yes'/>
+
+<BFE_CERN_THESIS_NOTE prefix='<tr><td
+class="formatRecordLabel">
+Thesis note
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_NOTE prefix='<tr><td
+class="formatRecordLabel">
+Note
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_ANALYTIC_IN_BOOK_OR_CONFERENCE
+row_prefix='<tr><td
+class="formatRecordLabel">
+In:
+</td><td style="padding-left:5px;">'
+separator=', '
+row_suffix="</td></tr>"
+/>
+
+<BFE_CERN_ANALYTIC_IN_JOURNAL
+prefix='<tr><td
+class="formatRecordLabel">
+In:
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_LECTURE_NOTE prefix='<tr><td
+class="formatRecordLabel">
+Lecture note
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_SUBJECT_CODE prefix='<tr><td
+class="formatRecordLabel">
+Subject code
+</td><td style="padding-left:5px;">' suffix="</td></tr>" separator=" ; "/>
+
+<BFE_CERN_SUBJECT_CATEGORY prefix='<tr><td
+class="formatRecordLabel">
+Subject category
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_ACTIVITY prefix='<tr><td
+class="formatRecordLabel">
+Accelerator/Facility, Experiment
+</td><td style="padding-left:5px;">' suffix="</td></tr>" separator=" ; "/>
+
+<BFE_CERN_STUDY prefix='<tr><td
+class="formatRecordLabel">
+Study
+</td><td style="padding-left:5px;">' suffix="</td></tr>" separator=" ; "/>
+
+<BFE_CERN_KEYWORDS prefix='<tr><td
+class="formatRecordLabel">
+Keywords
+</td><td style="padding-left:5px;">' 
+cern_keywords_only="no"
+display_source="CERN,author"
+suffix="</td></tr>" separator=" ; "/>
+
+
+<BFE_ABSTRACT prefix='<tr><td
+class="formatRecordLabel">
+Abstract
+</td><td style="padding-left:5px;">' suffix="</td></tr>" limit=""/>
+
+<BFE_CERN_ISBN prefix='<tr><td
+class="formatRecordLabel">
+ISBN
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_ASIN prefix='<tr><td
+class="formatRecordLabel">
+ASIN
+</td><td style="padding-left:5px;">' suffix="</td></tr>"/>
+
+<BFE_CERN_OTHER_EDITIONS_AVAILABLE prefix='<tr><td
+class="formatRecordLabel">
+Other editions
+</td><td style="padding-left:5px;">' 
+suffix="</td></tr>"/>
+
+<BFE_DOI prefix='<tr><td
+class="formatRecordLabel">
+DOI
+</td><td style="padding-left:5px;">'
+suffix="</td></tr>"/>
+
+<BFE_GOOGLEBOOK_LINK prefix='<tr><td class="formatRecordLabel"> </td><td style="padding-left:5px;">'
+                   suffix='</td></tr>'  div_param=' style="display:none"'/>
+
+<BFE_WORLDCAT_LINK prefix='<tr><td
+class="formatRecordLabel">
+More info
+</td><td style="padding-left:5px;">'
+suffix="</td></tr>"/>
+
+<BFE_COPYRIGHT prefix='<tr><td
+class="formatRecordLabel">
+Copyright/License
+</td><td style="padding-left:5px;">' suffix="</td></tr>" auto_link_to_CERN_license="yes" instances_separator="<br/>" />
+
+</table>
+
+<BFE_CERN_EMAIL prefix="<br/>Email contact: " />
+
+<small>
+<BFE_CERN_PROPOSE_NOTE prefix='<br/><div style="background-color:#F0F0F0;border:1px solid black">' suffix="</div>">
+</small>
+
+<BFE_CERN_PROPOSE_BOOK prefix="<br/>">
+
+<BFE_CERN_LIBRARY_COPIES prefix="<br/>">
+
+<BFE_CERN_BOOKSHOP_LINK prefix=" - ">
+
+<BFE_CERN_BOOK_CHAPTERS prefix='<p class="formatRecordLabel">'/>
+<br/>
+
+<small>
+<BFE_CERN_ISO_NOTE />
+</small>

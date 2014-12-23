@@ -41,7 +41,9 @@ from invenio.bibcirculation_utils import get_book_cover, \
       get_item_info_for_search_result, \
       all_copies_are_missing, \
       is_periodical, \
-      looks_like_dictionary
+      looks_like_dictionary, \
+      record_edoc_link, \
+      message_edoc_available
 from invenio.bibcirculation_config import \
     CFG_BIBCIRCULATION_ITEM_LOAN_PERIOD, \
     CFG_BIBCIRCULATION_COLLECTION, \
@@ -295,13 +297,15 @@ class Template:
 
         _ = gettext_set_language(ln)
 
+        edoc_link = record_edoc_link(recid)
+
         if not book_title_from_MARC(recid):
             out = """<div align="center"
                      <div class="bibcircinfoboxmsg">%s</div>
                   """ % (_("This record does not exist."))
             return out
 
-        elif not db.has_copies(recid):
+        elif not db.has_copies(recid) and not edoc_link:
             message = _("This record has no copies.")
 
 
@@ -318,7 +322,7 @@ class Template:
             return out
 
         # verify if all copies are missing
-        elif all_copies_are_missing(recid):
+        elif all_copies_are_missing(recid) and not edoc_link:
 
             ill_link = """<a href='%(url)s/ill/book_request_step1?%(ln)s'>%(ILL_services)s</a>
                        """ % {'url': CFG_SITE_URL, 'ln': ln,
@@ -330,7 +334,7 @@ class Template:
             return out
 
         # verify if there are no copies
-        elif not holdings_info:
+        elif not holdings_info and not edoc_link:
             out = """<div align="center"
                      <div class="bibcircinfoboxmsg">%s</div>
                 """ % (_("This item has no holdings."))
@@ -389,6 +393,27 @@ class Template:
                 """ % (_("Options"), _("Library"), _("Collection"),
                        _("Location"), _("Description"), _("Loan period"),
                        _("Status"), _("Due date"), _("Barcode"))
+
+        if edoc_link:
+            request_button = """
+                <input type=button onClick="location.href='%s'"
+                value='%s' class="bibcircbutton" onmouseover="this.className='bibcircbuttonover'"
+                onmouseout="this.className='bibcircbutton'">
+                """ % (edoc_link, _("Access e-copy"))
+            out += """
+          <tr>
+              <td>%s</td>
+              <td>%s</td>
+              <td>%s</td>
+              <td>%s</td>
+              <td>%s</td>
+              <td>%s</td>
+              <td>%s</td>
+              <td>%s</td>
+              <td align='center'>%s</td>
+          </tr>
+          """ % (request_button, '-', '-', '-',
+                 'e-copy', '-', 'available', '-', '-')
 
         for (barcode, library, collection, location, description,
              loan_period, status, due_date) in holdings_info:
@@ -514,14 +539,18 @@ class Template:
         message = _("You already have a request on, or are in possession of this document.")
         return message
 
-    def tmpl_message_request_send_ok_cern(self, ln=CFG_SITE_LANG):
+    def tmpl_message_request_send_ok_cern(self, recid, ln=CFG_SITE_LANG):
         _ = gettext_set_language(ln)
         message = _("Your request has been registered and the document will be sent to you via internal mail.")
+        eb = message_edoc_available(recid, ln)
+        if eb: message += eb + _("If the digital edition meets your requirement, please delete your hold request.")
         return message
 
-    def tmpl_message_request_send_ok_other(self, ln=CFG_SITE_LANG):
+    def tmpl_message_request_send_ok_other(self, recid, ln=CFG_SITE_LANG):
         _ = gettext_set_language(ln)
         message = _("Your request has been registered.")
+        eb = message_edoc_available(recid, ln)
+        if eb: message += eb + _("If the digital edition meets your requirement, please delete your hold request.")
         return message
 
     def tmpl_message_request_send_fail_cern(self, custom_msg='', ln=CFG_SITE_LANG):
@@ -566,7 +595,7 @@ class Template:
     ###
 
 
-    def tmpl_yourloans(self, loans, requests, proposals, borrower_id,
+    def tmpl_yourloans(self, loans, requests, proposals, ills, borrower_id,
                        infos, ln=CFG_SITE_LANG):
         """
         When a user is logged in, in the section 'yourloans', it is
@@ -725,6 +754,64 @@ class Template:
                       </table>
                       <br />"""
 
+        if len(ills) == 0:
+            out += """
+                   <h1 class="headline">%s</h1>
+                   <br />
+                   <table class="bibcirctable_contents">
+                   <td align="center" class="bibcirccontent">%s</td>
+                   </table>
+                   <br />
+                   """ % (_("Your Inter Library Loans"),
+                        _("You don't have any inter library loans."))
+
+        else:
+            out += """
+                   <h1 class="headline">%s</h1>
+                   <style type="text/css"> @import url("/img/tablesorter.css"); </style>
+                   <script src="/js/tablesorter/jquery.tablesorter.js" type="text/javascript"></script>
+                   <script type="text/javascript">
+                   $(document).ready(function() {
+                        $('#table_requests').tablesorter()
+                   });
+                   </script>
+                   <table class="tablesortermedium" id="table_requests"
+                          border="0" cellpadding="0" cellspacing="1">
+                   <thead>
+                   <tr>
+                     <th>%s</th>
+                     <th>%s</th>
+                     <th>%s</th>
+                     <th>%s</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   """ % (_("Your Inter Library Loans"),
+                          _("Item"),
+                          _("Request date"),
+                          _("Status"),
+                          _("Due date"))
+
+            for(item_info, request_date, status, due_date) in ills:
+
+                if looks_like_dictionary(item_info):
+                    item_info = eval(item_info)
+                else:
+                    item_info = {}
+
+                out += """
+                <tr>
+                  <td>%s</td>
+                  <td>%s</td>
+                  <td>%s</td>
+                  <td>%s</td>
+                </tr>
+                """ % (item_info['title'], request_date, status, due_date)
+
+            out += """</tbody>
+                      </table>
+                      <br />"""
+
         if len(proposals) == 0:
             out += """
                    <h1 class="headline">%s</h1>
@@ -778,16 +865,17 @@ class Template:
                           _("Proposal date"))
 
             for(request_id, recid, request_date, status) in proposals:
-
+ 
                 record_link = "<a href=" + CFG_SITE_URL + "/%s/%s?ln=%s>" % (CFG_SITE_RECORD, recid, ln) + \
                               (book_title_from_MARC(recid)) + "</a>"
 
                 out += """
-                <tr>
-                  <td>%s</td>
-                  <td>%s</td>
-                </tr>
-                """ % (record_link, request_date)
+                          <tr>
+                          <td>%s</td>
+                          <td>%s</td>
+                          </tr>
+                       """ % (record_link, request_date)
+
 
             out += """     </tbody>
                           </table>
@@ -893,7 +981,7 @@ class Template:
     ###
 
 
-    def tmpl_new_request(self, recid, barcode, action="borrowal", ln=CFG_SITE_LANG):
+    def tmpl_new_request(self, infos, recid, barcode, action="borrowal", ln=CFG_SITE_LANG):
         """
         This template is used when a user wants to request a copy of a book.
         If a copy is avaliable (action is 'borrowal'), the 'period of interest' is solicited.
@@ -907,6 +995,9 @@ class Template:
         """
 
         _ = gettext_set_language(ln)
+        out = ''
+        if infos:
+           out += self.tmpl_infobox(infos,ln)
 
         today = datetime.date.today()
         gap = datetime.timedelta(days=180)
@@ -914,7 +1005,7 @@ class Template:
         more_6_months = (today + gap).strftime('%Y-%m-%d')
         more_1_year = (today + gap_1yr).strftime('%Y-%m-%d')
 
-        out = """
+        out += """
         <style type="text/css"> @import url("/img/tablesorter.css"); </style>
         <link rel=\"stylesheet\" href=\"%s/img/jquery-ui.css\" type=\"text/css\" />
         <script type="text/javascript" language='JavaScript' src="%s/js/ui.datepicker.min.js"></script>
@@ -1017,12 +1108,9 @@ class Template:
         <br />
         <br />
         <table class="bibcirctable">
-            <tr>
-                <td class="bibcirccontent" width="30">%s</td>
-            </tr>
-            <tr>
-                <td class="bibcirccontent" width="30">%s</td>
-            </tr>
+            <tr><font size="4">
+                <td class="bibcirccontent" width="50">%s%s</td>
+            </font></tr>
         </table>
         <br />
         <br />
@@ -1034,7 +1122,7 @@ class Template:
         <br />
         <br />
         """ % (message,
-               _("You can see your library account %(x_url_open)shere%(x_url_close)s."
+               _(" You can see your library account %(x_url_open)shere%(x_url_close)s."
                     % {'x_url_open': '<a href="' + CFG_SITE_URL + \
                        '/yourloans/display' + '">', 'x_url_close': '</a>'}),
                CFG_SITE_URL,
@@ -12211,7 +12299,7 @@ onClick="location.href='%s/admin2/bibcirculation/get_item_requests_details?recid
                           <th width="100" valign="top">%s</th>
                           <td>
                             <table class="bibcircnotes">
-                    """ % (_("Barcode"), barcode or 'No barcode associated',
+                    """ % (_("Barcode"), barcode or 'No barcode asociated',
                            _("Previous notes"))
 
             out += notes

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##
 ## This file is part of Invenio.
-## Copyright (C) 2008, 2009, 2010, 2011, 2013 CERN.
+## Copyright (C) 2008, 2009, 2010, 2011, 2013, 2014 CERN.
 ##
 ## Invenio is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ if CFG_CERN_SITE == 1:
                     '\t%s\n\n'\
                     '\tRequest date: %s\n\n'\
                     'The document will be sent to you via internal mail.\n\n'\
-                    'Best regards\n',
+                    'Best regards,\nCERN Library\n\n',
     #user_name, ccid, user_email, address,department, mailbox, title,
     #author, publisher, year, isbn, location, library,
     #link_to_holdings_details, request_date
@@ -93,7 +93,7 @@ if CFG_CERN_SITE == 1:
                     'Do you want to come to the Library desk to pick it up or do you prefer we send it to you by internal mail?\n\n'\
                     'Best regards,\nCERN Library team\n',
 
-        'ILL_RECALL1':  'Dear Colleague,\n\n'\
+    'ILL_RECALL1':  'Dear Colleague,\n\n'\
                         'The loan period has now expired for the following document which has been borrowed for you '\
                         'from another Library.\n\n'\
                         'Please return it to the Library (either personally or by internal mail). Failure to do that could result in the library being fined. '\
@@ -103,7 +103,7 @@ if CFG_CERN_SITE == 1:
                         'Thank you for using our services,\n'\
                         'CERN Library Staff',
 
-        'ILL_RECALL2':  'Dear Colleague,\n\n'\
+    'ILL_RECALL2':  'Dear Colleague,\n\n'\
                         'The return date for the following document which has been borrowed for you from another '\
                         'library is now well past.\n\n'\
                         'According to our records you have not responded to our first recall message, so we now ask '\
@@ -115,7 +115,7 @@ if CFG_CERN_SITE == 1:
                         'Thank you for using our services,\n'\
                         'CERN Library Staff',
 
-        'ILL_RECALL3':  'Dear Colleague,\n\n'\
+    'ILL_RECALL3':  'Dear Colleague,\n\n'\
                         'We have already sent you two messages about the following document borrowed for you from '\
                         'another Library.\n\n'\
                         'According to our records, you have not responded to either of them. Please return the '\
@@ -175,8 +175,8 @@ if CFG_CERN_SITE == 1:
                        '\n\nBest regards',
     'RECALL1': 'Dear Colleague,\n\n'\
                'The loan period has now expired for the following Library item which you '\
-               ' borrowed. Please return it to the Library (either personally or by '\
-               ' internal mail) or extend the loan at:\n\n'\
+               'borrowed. Please return it to the Library (either personally or by '\
+               'internal mail) or extend the loan at:\n\n'\
                '%s/yourloans/display \n\n' % CFG_SITE_URL +
                'If you have already done so, please ignore this message.\n\n'\
                'Item information:\n\n'\
@@ -185,10 +185,10 @@ if CFG_CERN_SITE == 1:
                '%s \n'\
                '%s \n'\
                '%s \n\n'\
-               'Thank you for using our services, Library Staff \n\n\n\n'\
                'If you are not able to update your loans via WWW or for any other '\
                'matter concerning circulation of library material, please simply '\
-               'reply to this mail.',
+               'reply to this mail. \n\n'\
+               'Thank you for using our services,\nCERN Library Staff \n\n',
     'RECALL2': 'Dear Colleague\n\n'\
                'The return date for the following Library item which you borrowed is now '\
                'well past. According to our records you have not responded to our first '\
@@ -203,7 +203,7 @@ if CFG_CERN_SITE == 1:
                '%s \n'\
                '%s \n'\
                '%s \n\n'\
-               'Thank you in advance for your cooperation, CERN Library Staff',
+               'Thank you in advance for your cooperation,\nCERN Library Staff\n\n',
     'RECALL3': 'Dear Colleague,\n\n'\
                'We have already sent you two messages about the following Library item, '\
                'which should have been returned a long time ago. According to our records, '\
@@ -218,7 +218,7 @@ if CFG_CERN_SITE == 1:
                '%s \n'\
                '%s \n'\
                '%s \n\n'\
-               'Thank you in advance for your cooperation, CERN Library Staff',
+               'Thank you in advance for your cooperation,\nCERN Library Staff\n\n',
     'EMPTY': 'Please choose one template'
     }
 
@@ -239,7 +239,7 @@ else:
                     '\tLibrary: %s\n'\
                     '\t%s\n\n'\
                     '\tRequest date: %s\n\n'\
-                    'Best regards\n',
+                    'Best regards,\nLibrary\n\n',
 
         'ILL_RECEIVED': 'Dear colleague,\n\n'\
                     'The document you requested has been received. '\
@@ -328,8 +328,8 @@ else:
                        '\n\nBest regards',
         'RECALL1': 'Dear Colleague,\n\n'\
                    'The loan period has now expired for the following Library item which you '\
-                   ' borrowed. Please return it to the Library (either personally or by '\
-                   ' internal mail) or extend the loan at:\n\n'\
+                   'borrowed. Please return it to the Library (either personally or by '\
+                   'internal mail) or extend the loan at:\n\n'\
                    '%s/yourloans/display \n\n' % CFG_SITE_URL +
                    'If you have already done so, please ignore this message.\n\n'\
                    'Item information:\n\n'\
@@ -338,10 +338,10 @@ else:
                    '\t author(s): %s \n'\
                    '\t isbn: %s \n'\
                    '\t publisher: %s \n\n'\
-                   'Thank you for using our services, Library Staff \n\n\n\n'\
                    'If you are not able to update your loans via WWW or for any other ' \
                    'matter concerning circulation of library material, please simply ' \
-                   'reply to this mail.',
+                   'reply to this mail.\n\n'\
+                   'Thank you for using our services,\nLibrary Staff\n\n',
         'RECALL2': 'Dear Colleague\n\n'\
                    'The return date for the following Library item which you borrowed is now ' \
                    'well past. According to our records you have not responded to our first ' \
@@ -356,7 +356,7 @@ else:
                    '%s \n'\
                    '%s \n'\
                    '%s \n\n'\
-                   'Thank you in advance for your cooperation, Library Staff',
+                   'Thank you in advance for your cooperation,\nLibrary Staff\n\n',
         'RECALL3': 'Dear Colleague,\n\n'\
                'We have already sent you two messages about the following Library item, '\
                'which should have been returned a long time ago. According to our records, '\
@@ -371,7 +371,7 @@ else:
                '%s \n'\
                '%s \n'\
                '%s \n\n'\
-               'Thank you in advance for your cooperation, Library Staff',
+               'Thank you in advance for your cooperation,\nLibrary Staff\n\n',
         'EMPTY': 'Please choose one template'
         }
 
@@ -385,11 +385,11 @@ else:
     CFG_BIBCIRCULATION_LOANS_EMAIL = CFG_BIBCIRCULATION_LIBRARIAN_EMAIL
 
 if CFG_CERN_SITE:
-    CFG_BIBCIRCULATION_HOLIDAYS = ['2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04',
-                                   '2013-03-29', '2013-04-01', '2013-05-01', '2013-05-09',
-                                   '2013-05-20', '2013-09-05', '2013-12-23', '2013-12-24',
-                                   '2013-12-25', '2013-12-26', '2013-12-27', '2013-12-30',
-                                   '2013-12-31', '2014-01-01', '2014-01-02', '2014-01-03']
+    CFG_BIBCIRCULATION_HOLIDAYS = ['2014-01-01', '2014-01-02', '2014-01-03', '2014-04-18',
+                                   '2014-04-21', '2014-05-01', '2014-05-29', '2014-06-09',
+                                   '2014-09-11', '2014-12-22', '2014-12-23', '2014-12-24',
+                                   '2014-12-25', '2014-12-26', '2014-12-29', '2014-12-30',
+                                   '2014-12-31', '2015-01-01', '2015-01-02']
 
 else:
     CFG_BIBCIRCULATION_HOLIDAYS = []
@@ -440,6 +440,13 @@ CFG_BIBCIRCULATION_COLLECTION = ['Monograph', 'Reference', 'Archives',
 AMZ_ACQUISITION_IDENTIFIER_TAG = '595__a'
 
 AMZ_BOOK_PUBLICATION_DATE_TAG = '269__c'
+
+# The substring 'ebook' is looked for in '340' and 'ebook'/e-proceedings' in '8564_y'
+# before using the ebook link in the tag below.
+CFG_EBOOK_LINK_TAG = '8564_u'
+# The substring 'ebook' is looked for in '340' and 'ebook'/'e-proceedings' in 0247_y'
+# before using the DOI in the tag below to create a link to the e-copy.
+CFG_DOI_TAG = '0247_a'
 
 #The library whose id will be used by default at the time inserting a
 #dummy/temporary item.

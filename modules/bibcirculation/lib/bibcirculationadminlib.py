@@ -51,6 +51,7 @@ from invenio.webstat import register_customevent
 from invenio.errorlib import register_exception
 from invenio.mailutils import send_email
 from invenio.search_engine import perform_request_search, record_exists
+from invenio.search_engine_utils import get_fieldvalues
 from invenio.urlutils import create_html_link, create_url, redirect_to_url
 from invenio.messages import gettext_set_language
 from invenio.webstat import register_customevent
@@ -2975,15 +2976,22 @@ def update_item_info_step6(req, tup_infos, ln=CFG_SITE_LANG):
                               'href="%s/help/admin">Admin Area' \
                               '</a>' % (CFG_SITE_SECURE_URL,)
 
+    proposed = get_fieldvalues(recid, '690C_a')
     if barcode != old_barcode:
         if db.barcode_in_use(barcode):
             infos.append(_("Item <strong>[%s]</strong> updated, but the <strong>barcode was not modified</strong> because it is already in use.") % (old_barcode))
         else:
             if db.update_barcode(old_barcode, barcode):
                 infos.append(_("Item <strong>[%s]</strong> updated to <strong>[%s]</strong> with success.") % (old_barcode, barcode))
+                if 'BOOKSUGGESTION' in proposed:
+                    infos.append(_("Perhaps, you would want to change the value of 690C_ to 'BOOK' from 'BOOKSUGGESTION'?"))
             else:
                 infos.append(_("Item <strong>[%s]</strong> updated, but the <strong>barcode was not modified</strong> because it was not found (!?).") % (old_barcode))
 
+    if not infos and 'BOOKSUGGESTION' in proposed:
+        return redirect_to_url(req, CFG_SITE_SECURE_URL +
+                               "/record/edit/#state=edit&recid=" + str(recid))
+    else:
         copies = db.get_item_copies_details(recid)
         requests = db.get_item_requests(recid)
         loans = db.get_item_loans(recid)
@@ -3011,9 +3019,6 @@ def update_item_info_step6(req, tup_infos, ln=CFG_SITE_LANG):
                     navtrail=navtrail_previous_links,
                     lastupdated=__lastupdated__)
 
-    else:
-        return redirect_to_url(req, CFG_SITE_SECURE_URL +
-                                    "/record/edit/#state=edit&recid=" + str(recid))
 
 def item_search(req, infos=[], ln=CFG_SITE_LANG):
     """

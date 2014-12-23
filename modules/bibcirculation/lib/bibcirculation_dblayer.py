@@ -1050,6 +1050,20 @@ def get_loan_period(barcode):
     else:
         return None
 
+def get_modified_items_physical_locations():
+    """
+    Get the physical locations of modified items.
+    """
+    res = run_sql("""SELECT id_bibrec, status, location, collection
+                       FROM crcITEM
+                       WHERE modification_date >= SUBDATE(NOW(),1)
+                       AND modification_date <= NOW()""")
+
+    if res:
+        return res
+    else:
+        return None
+
 def update_item_info(barcode, library_id, collection, location, description,
                  loan_period, status, expected_arrival_date):
     """
@@ -1913,6 +1927,27 @@ def get_borrower_proposals(borrower_id):
                          status=%s""",
                   (borrower_id, CFG_BIBCIRCULATION_REQUEST_STATUS_PROPOSED))
     return res
+
+def get_borrower_ills(borrower_id):
+    """
+    Get the ills of a borrower.
+    borrower_id: identify the borrower. All the ills
+                 associated to this borrower will be retrieved.
+                 It is also the primary key of the crcBORROWER table.
+    """
+
+    res = run_sql("""
+                  SELECT item_info,
+                         DATE_FORMAT(request_date,'%%Y-%%m-%%d'),
+                         status,
+                         DATE_FORMAT(due_date,'%%Y-%%m-%%d')
+                  FROM   crcILLREQUEST
+                  WHERE  id_crcBORROWER=%s and request_type='book' and
+                         (status=%s or status=%s)""",
+                  (borrower_id, CFG_BIBCIRCULATION_ILL_STATUS_REQUESTED,
+                   CFG_BIBCIRCULATION_ILL_STATUS_ON_LOAN))
+    return res
+
 
 def bor_loans_historical_overview(borrower_id):
     """

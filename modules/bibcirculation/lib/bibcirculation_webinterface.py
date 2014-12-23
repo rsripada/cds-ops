@@ -980,7 +980,8 @@ class WebInterfaceHoldingsPages(WebInterfaceDirectory):
             act = "proposal"
         if argd['act'] == 'pu':
             act = "purchase"
-        body = perform_new_request(recid=self.recid,
+        body = perform_new_request(infos='',
+                                   recid=self.recid,
                                    barcode=argd['barcode'],
                                    action=act,
                                    ln=argd['ln'])
